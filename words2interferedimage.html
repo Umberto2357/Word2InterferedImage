@@ -1,0 +1,133 @@
+<html>
+<head>
+<script type="text/javascript">  
+	function $(id) {
+        return document.getElementById(id);
+    }
+	/*文字颜色生成*/
+	function changeColor() {
+		var c = $("text");
+        var ctx = c.getContext("2d");
+        var red = $("red");
+        var green = $("green");
+        var blue = $("blue");
+        ctx.fillStyle = "rgb(" + red.value + "," + green.value + ","
+                + blue.value + ")";
+        $("showcolor").innerHTML = ctx.fillStyle;
+        ctx.fillRect(0, 0, 100, 100);
+    }
+	/*干扰线横坐标生成*/
+	function lineX(){
+		var ranLineX=Math.floor(Math.random()*canvas.width);
+		return ranLineX;
+	}
+
+	/*干扰线纵坐标生成*/
+	function lineY(){
+		var ranLineY=Math.floor(Math.random()*canvas.height);
+		return ranLineY;
+	}
+	/*图片生成*/
+    function textToImg() {
+        var len = $('len').value || 30;
+        var i = 0;
+        var fontSize = $('fontSize').value || 15;
+        var fontWeight = $('fontWeight').value || 'normal';
+        var txt = $("txt").value;
+        var canvas = $('canvas');
+        if (txt == '') {
+            alert('你还没有输入文字');
+            $("txt").focus();
+        }
+        if (len > txt.length) {
+            len = txt.length;
+        }
+        canvas.width = fontSize * len;
+        canvas.height = fontSize * (3 / 2)
+                * (Math.ceil(txt.length / len) + txt.split('\n').length - 1);
+				
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = $("showcolor").innerHTML;
+        context.font = fontWeight + ' ' + fontSize + 'px sans-serif';
+        context.textBaseline = 'top';
+        canvas.style.display = 'none';
+        console.log(txt.length);
+        function fillTxt(text) {
+            while (text.length > len) {
+                var txtLine = text.substring(0, len);
+                text = text.substring(len);
+                context.fillText(txtLine, 0, fontSize * ( 3 / 2 ) * i++,canvas.width);
+            }
+            context.fillText(text, 0, fontSize * (3 / 2) * i, canvas.width);
+        }
+        var txtArray = txt.split('\n');
+        for ( var j = 0; j < txtArray.length; j++) {
+            fillTxt(txtArray[j]);
+            context.fillText('\n', 0, fontSize * (3 / 2) * i++, canvas.width);
+        }
+		/*生成干扰线50条*/
+		for(var j = 0; j < 50; j++){
+			context.strokeStyle=$("showcolor").innerHTML;
+			context.beginPath(); //若省略beginPath，则每点击一次验证码会累积干扰线的条数
+			context.moveTo(lineX(),lineY());
+			context.lineTo(lineX(),lineY());
+			context.lineWidth=0.5;
+			context.closePath();
+			context.stroke();
+		}
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var img = $("img");
+        img.src = canvas.toDataURL("image/png");
+    }
+	
+</script>
+<meta http-equiv="Content-Type" c>
+<title>文字转线条干扰图片</title>
+</head>
+
+<body>
+<div style="float: left"><textarea id="txt"
+    style="width: 450px; height: 400px;">在此输入文字</textarea></div>
+<div style="width: 200px; height: 100px; float: left; clear: right">
+<table>
+    <tr>
+        <td><label>字体大小:</label><input size="4" id='fontSize' value='15'/>px</td>
+    </tr>
+    <tr>
+        <td><label>字体粗细:</label><select id="fontWeight">
+            <option value="normal">正常</option>
+            <option value="bold">粗</option>
+        </select></td>
+    </tr>
+    <tr>
+        <td><label>每行显示:</label><input size="4" id='len' value="40" />个字</td>
+    </tr>
+    <tr>
+        <td><canvas id="text" width="100" height="100"></canvas>
+        <p>Red： <input type="range" id="red" min="0" max="255" value="0"
+            onchange="changeColor();" /></p>
+        <p>Green：<input type="range" id="green" min="0" max="255"
+            value="0" onchange="changeColor();" /></p>
+        <p>Blue： <input type="range" id="blue" min="0" max="255" value="0"
+            onchange="changeColor();" /></p>
+        目前的颜色:<span id="showcolor"></span></td>
+    </tr> 
+    <tr>
+        <td>
+        <button onclick=
+    textToImg();;
+>
+生成图片</button>
+        </td>
+    </tr>
+</table>
+</div>
+<canvas id="canvas" style="display:block"></canvas>
+<div style="margin-left: 650px"><img id="img"
+    style="border: 1px solid" /></div>
+<script>
+    changeColor();
+</script>
+</body>
+</html>
